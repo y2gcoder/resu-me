@@ -41,9 +41,9 @@ AI 기능은 필수는 아니지만 요약/번역 보조를 통해 차별화한�
 
 1. 계정 생성/로그인 (JWT 인증)
 2. 이력서 CRUD
-   - 속성: `title`, `locale (en|ko)`, `template`, `isPublic`
+   - 속성: `title`, `locale (en-US|ko-KR)`, `isPublic`
 3. 섹션 관리
-   - 타입: summary, work, education, skills, projects, links
+   - 타입: basic_info, summary, work, projects, skills, links
    - 순서 변경 및 내용 수정
 4. 공개 보기
    - URL `/u/{handle}/{resumeId}`, 조건: `isPublic = true`
@@ -51,6 +51,7 @@ AI 기능은 필수는 아니지만 요약/번역 보조를 통해 차별화한�
    - HTML → PDF 변환 후 오브젝트 스토리지(S3/R2)에 저장
    - 다운로드 링크 반환
    - 월간 무료 PDF 쿼터 제한
+   - 요청 시 템플릿 키를 지정할 수 있으며, 생략되면 시스템 기본 템플릿이 적용
 6. (선택) AI 보조
    - 경력/스킬 기반 요약문 생성
    - EN↔KO 번역
@@ -87,6 +88,7 @@ AI 기능은 필수는 아니지만 요약/번역 보조를 통해 차별화한�
 - 상태 전이: `pending → processing → succeeded|failed`
 - 완료 시 fileUrl 반환
 - DB에 export 이력 기록
+- 요청 시 템플릿 키를 전달할 수 있으며, 생략 시 시스템 기본 템플릿 사용
 
 ### 4.6 AI (Optional)
 
@@ -109,9 +111,9 @@ AI 기능은 필수는 아니지만 요약/번역 보조를 통해 차별화한�
 ## 6. Data Model (Conceptual)
 
 - **User**: id, email, password_hash, handle, created_at
-- **Resume**: id, user_id, title, locale, template, isPublic, updated_at
+- **Resume**: id, user_id, title, locale, isPublic, updated_at
 - **Section**: id, resume_id, type, order, data(JSON), updated_at
-- **Export**: id, resume_id, kind(pdf/html), status, file_url, created_at
+- **Export**: id, resume_id, kind(pdf/html), template, status, file_url, created_at
 - (옵션) **Quota**: user_id, month_key, pdf_exports
 
 ---
