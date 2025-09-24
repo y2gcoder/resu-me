@@ -2,7 +2,8 @@ name: required-ci
 on:
   pull_request:
 jobs:
-  ok:
+  required-ci:          # job id
+    name: required-ci   # reported check name
     runs-on: ubuntu-latest
     steps:
       - run: echo "Always-on required check ✅"
