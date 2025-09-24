@@ -1,0 +1,14 @@
+# General
+.DS_Store
+.env
+.env.*
+# Python
+__pycache__/
+*.pyc
+.venv/
+# Node
+node_modules/
+.next/
+dist/
+# Docker
+**/.local/
