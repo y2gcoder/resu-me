@@ -1,13 +1,26 @@
 name: backend-ci
 on:
+  pull_request:
   push:
     branches: [ main ]
-    paths:
-      - 'backend/**'
-      - '.github/workflows/backend.yml'
 jobs:
-  ci:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - '.github/workflows/backend.yml'
+  build_and_test:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: echo "backend changed – add build/test later"
+      - run: echo "run backend build/test here"

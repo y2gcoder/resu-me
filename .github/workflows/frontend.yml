@@ -1,13 +1,26 @@
 name: frontend-ci
 on:
+  pull_request:
   push:
     branches: [ main ]
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend.yml'
 jobs:
-  ci:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+              - '.github/workflows/frontend.yml'
+  build_and_test:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: echo "frontend changed – add build/test later"
+      - run: echo "run frontend build/test here"
