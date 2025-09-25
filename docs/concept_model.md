@@ -18,9 +18,9 @@
 
 - `user_id` : 사용자 식별자
 - `email` : 로그인/알림용 (고유)
+- `password_hash`: 패스워드(해시)
 - `handle` : 공개 URL용 별칭 (고유, URL-safe)
 - `locale` : 기본 언어 (예: `en-US`, `ko-KR`)
-- `plan` : 요금제 (초기 `free`)
 
 > *Note:* `created_at` 등 감사 컬럼은 개념 모델에서는 생략(물리 모델에서 공통 적용)
 
@@ -136,9 +136,9 @@ erDiagram
   USER {
     string user_id
     string email
+    string password_hash
     string handle
     string locale
-    string plan
   }
 
   RESUME {
@@ -184,3 +184,6 @@ erDiagram
 - last_updated_at은 표시/정렬 등 도메인 의미가 있는 필드로서 개념 모델에 포함(물리에서 updated_at로 구현).
 - Section.content의 상세 스키마는 API 계층(Pydantic)에서 타입별로 검증한다.
 - 구현 단계에서는 Surrogate Key(예: ULID)와 비식별 관계를 사용한다.
+- MVP는 단일 무료 플랜을 전제로 하며, 사용자별 월간 PDF 내보내기 제한(최대 5회)은 Quota 엔티티로 관리한다.
+- 무료 플랜 사용자는 이력서를 1개까지만 보유할 수 있으며, 정책은 애플리케이션 계층에서 검증한다.
+- AI 요약/번역 기능은 상태 없이 호출되며, 결과 저장이 필요한 경우 별도 엔티티를 향후 검토한다.
