@@ -114,7 +114,7 @@ AI 기능은 필수는 아니지만 요약/번역 보조를 통해 차별화한�
 - **Resume**: id, user_id, title, locale, isPublic, updated_at
 - **Section**: id, resume_id, type, order, data(JSON), updated_at
 - **Export**: id, resume_id, kind(pdf/html), template, status, file_url, created_at
-- (옵션) **Quota**: user_id, month_key, pdf_exports
+- (옵션) **Quota**: user_id, year_month, pdf_export_count
 
 ---
 

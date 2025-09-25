@@ -30,8 +30,8 @@
 - `title` : 제목
 - `locale` : 렌더링 언어 (예: `en-US`, `ko-KR`)
 - `is_public` : 공개 여부
-- `last_updated_at` : **도메인적으로 의미 있는 최근 수정 시각**
-  > 물리 스키마에서는 공통 `updated_at`이 이 역할을 겸함
+- `updated_at` : **도메인적으로 의미 있는 최근 수정 시각**
+  > 물리 스키마에서는 공통 `updated_at`이 동일한 역할을 수행한다.
 
 ### Section
 
@@ -92,8 +92,8 @@
 ### Export
 
 - `export_id` : 내보내기 식별자
-- `kind` : `pdf|html`
-- `template` : 렌더링에 사용된 템플릿 키
+- `format` : `pdf|html`
+- `template_id` : 렌더링에 사용된 템플릿 식별자
 - `status` : `pending|processing|succeeded|failed`
 - `file_url` : 결과 파일 참조
 - `error_reason` : 실패 사유(선택)
@@ -102,14 +102,14 @@
 ### Quota (월간 사용량)
 
 - `quota_id` : 월간 사용량 식별자
-- `month_key` : `YYYY-MM`
-- `pdf_exports_used` : 월간 PDF 사용량
+- `year_month` : `YYYY-MM`
+- `pdf_export_count` : 월간 PDF 사용량
 
 ### Template (Optional Lookup)
 
-- `template` : 템플릿 키
+- `template_id` : 템플릿 식별자
 - `name` : 표시 이름
-- `assets_ref` : 에셋/스타일 참조(선택)
+- `asset_reference` : 에셋/스타일 참조(선택)
 
 > 초기에는 코드 상수로 대체 가능
 > Export에서 템플릿을 선택할 때 lookup 용도로 사용
@@ -122,7 +122,7 @@
 - User **1 — N** Resume
 - Resume **1 — N** Section
 - Resume **1 — N** Export
-- User **1 — N** Quota *(by `month_key`)*
+- User **1 — N** Quota *(by `year_month`)*
 - Template **1 — N** Export *(렌더링에 사용됨)*
 
 ```mermaid
@@ -146,7 +146,7 @@ erDiagram
     string title
     string locale
     boolean is_public
-    datetime last_updated_at
+    datetime updated_at
   }
 
   SECTION {
@@ -158,8 +158,8 @@ erDiagram
 
   EXPORT {
     string export_id
-    string kind
-    string template
+    string format
+    string template_id
     string status
     string file_url
     string error_reason
@@ -167,23 +167,23 @@ erDiagram
 
   QUOTA {
     string quota_id
-    string month_key
-    int pdf_exports_used
+    string year_month
+    int pdf_export_count
   }
 
   TEMPLATE {
-    string template
+    string template_id
     string name
-    string assets_ref
+    string asset_reference
   }
 ```
 
 ## Notes
 
 - 감사 컬럼은 개념 모델에서 생략하고, 논리/물리 스키마에서 전 테이블 공통으로 정의한다.
-- last_updated_at은 표시/정렬 등 도메인 의미가 있는 필드로서 개념 모델에 포함(물리에서 updated_at로 구현).
+- updated_at은 표시/정렬 등 도메인 의미가 있는 필드로서 개념 모델에 포함되며, 물리 스키마에서도 동일 명칭을 사용한다.
 - Section.content의 상세 스키마는 API 계층(Pydantic)에서 타입별로 검증한다.
 - 구현 단계에서는 Surrogate Key(예: ULID)와 비식별 관계를 사용한다.
-- MVP는 단일 무료 플랜을 전제로 하며, 사용자별 월간 PDF 내보내기 제한(최대 5회)은 Quota 엔티티로 관리한다.
+- MVP는 단일 무료 플랜을 전제로 하며, 사용자별 월간 PDF 내보내기 제한(최대 5회)은 Quota 엔티티(`pdf_export_count`, `year_month`)로 관리한다.
 - 무료 플랜 사용자는 이력서를 1개까지만 보유할 수 있으며, 정책은 애플리케이션 계층에서 검증한다.
 - AI 요약/번역 기능은 상태 없이 호출되며, 결과 저장이 필요한 경우 별도 엔티티를 향후 검토한다.
