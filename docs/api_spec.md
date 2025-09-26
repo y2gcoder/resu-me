@@ -28,22 +28,22 @@
 }
 ```
 
-> `type`은 오류 유형을 설명하는 URI이다. 별도 문서를 생성하기 전에는 `https://resu.me/errors/<slug>` 패턴을 사용하고, 구체적인 문서가 없으면 `about:blank`를 사용할 수 있다. `code`는 snake_case 형식의 서비스 내부 오류 식별자(`email_taken` 등), `timestamp`는 ISO-8601 UTC 시각, `fields`는 필드단위 오류 정보를 나타낸다.
+> `type`은 오류 유형을 설명하는 URI이다. 현재는 `https://resu.me/errors/<code>` 패턴을 사용하되, 전용 문서가 준비되지 않았다면 `about:blank`로 대체한다. `code`는 snake_case 형식의 서비스 내부 오류 식별자, `timestamp`는 ISO-8601 UTC 시각, `fields`는 필드단위 오류 정보를 나타낸다.
 
-### 오류 매핑
+### 오류 코드 매핑
 
-| HTTP | type (slug) | 기본 title | detail 예시 |
+| HTTP | code | 기본 title | detail 예시 |
 | --- | --- | --- | --- |
-| 400 | `invalid-request` | Bad Request | 요청 스키마 오류, 필드 누락. |
+| 400 | `invalid_request` | Bad Request | 요청 스키마 오류, 필드 누락. |
 | 401 | `unauthorized` | Unauthorized | 토큰 누락/만료/검증 실패. |
 | 403 | `forbidden` | Forbidden | 리소스 접근 권한 없음 (예: 다른 사용자의 리소스). |
-| 404 | `not-found` | Not Found | 존재하지 않는 리소스(`resume`, `section` 등). |
-| 409 | `conflict` | Conflict | 중복 핸들, 섹션 순서 충돌 등. 세부 `code` 예: `email_taken`. |
-| 422 | `validation-error` | Unprocessable Entity | 섹션 content schema 위반, 필드 유효성 실패. |
-| 429 | `rate-limited` | Too Many Requests | 쿼터 초과, 호출 제한. |
-| 500 | `internal-error` | Internal Server Error | 미처리 예외, 서버 내부 오류. |
+| 404 | `not_found` | Not Found | 존재하지 않는 리소스(`resume`, `section` 등). |
+| 409 | `conflict` | Conflict | 중복 핸들, 섹션 순서 충돌 등. 세부 케이스 `email_taken`, `handle_taken`. |
+| 422 | `validation_error` | Unprocessable Entity | 섹션 content schema 위반, 필드 유효성 실패. |
+| 429 | `rate_limited` | Too Many Requests | 쿼터 초과, 호출 제한. |
+| 500 | `internal_error` | Internal Server Error | 미처리 예외, 서버 내부 오류. |
 
-> 세부 도메인 코드는 `code` 필드에 작성(예: `quota_exceeded`, `section_content_invalid`). 필드별 오류는 `fields` 객체에 `{ "field_name": "reason" }` 형식으로 전달한다.
+> 세부 도메인 코드는 위 표의 기본 코드에서 파생하여 사용한다(예: `conflict` 범주의 `quota_exceeded`, `validation_error` 범주의 `section_content_invalid`). 필드별 오류는 `fields` 객체에 `{ "field_name": "reason" }` 형식으로 전달한다.
 
 ### 페이징 / 정렬
 
