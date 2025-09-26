@@ -28,7 +28,7 @@
 }
 ```
 
-> `type`은 오류 유형을 설명하는 URI이다. 별도 문서를 생성하기 전에는 `https://resu.me/errors/<slug>` 패턴을 사용하고, 구체적인 문서가 없으면 `about:blank`를 사용할 수 있다. `code`는 서비스 내부 오류 식별자, `timestamp`는 ISO-8601 UTC 시각, `fields`는 필드단위 오류 정보를 나타낸다.
+> `type`은 오류 유형을 설명하는 URI이다. 별도 문서를 생성하기 전에는 `https://resu.me/errors/<slug>` 패턴을 사용하고, 구체적인 문서가 없으면 `about:blank`를 사용할 수 있다. `code`는 snake_case 형식의 서비스 내부 오류 식별자(`email_taken` 등), `timestamp`는 ISO-8601 UTC 시각, `fields`는 필드단위 오류 정보를 나타낸다.
 
 ### 오류 매핑
 
@@ -43,7 +43,7 @@
 | 429 | `rate-limited` | Too Many Requests | 쿼터 초과, 호출 제한. |
 | 500 | `internal-error` | Internal Server Error | 미처리 예외, 서버 내부 오류. |
 
-> 세부 도메인 코드는 `code` 필드에 작성(`quota_exceeded`, `section_content_invalid` 등). 필드별 오류는 `fields` 객체에 `{ "field_name": "reason" }` 형식으로 전달한다.
+> 세부 도메인 코드는 `code` 필드에 작성(예: `quota_exceeded`, `section_content_invalid`). 필드별 오류는 `fields` 객체에 `{ "field_name": "reason" }` 형식으로 전달한다.
 
 ### 페이징 / 정렬
 
