@@ -21,13 +21,14 @@
   "detail": "이미 사용 중인 이메일입니다.",
   "instance": "/api/auth/signup",
   "code": "email_taken",
+  "timestamp": "2024-03-01T12:34:56Z",
   "fields": {
     "email": "already_taken"
   }
 }
 ```
 
-> `type`은 오류 유형을 설명하는 URI이다. 별도 문서를 생성하기 전에는 `https://resu.me/errors/<slug>` 패턴을 사용하고, 구체적인 문서가 없으면 `about:blank`를 사용할 수 있다. `code`, `fields`는 서비스 확장 필드로 정의한다.
+> `type`은 오류 유형을 설명하는 URI이다. 별도 문서를 생성하기 전에는 `https://resu.me/errors/<slug>` 패턴을 사용하고, 구체적인 문서가 없으면 `about:blank`를 사용할 수 있다. `code`는 서비스 내부 오류 식별자, `timestamp`는 ISO-8601 UTC 시각, `fields`는 필드단위 오류 정보를 나타낸다.
 
 ### 오류 매핑
 
