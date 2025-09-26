@@ -11,30 +11,38 @@
 - **Auth**: `Authorization: Bearer <JWT>` (없으면 `401 unauthorized`)
 - **ID 스펙**: 모든 리소스 ID는 ULID 문자열(26자, 대문자+숫자) — `user_id`, `resume_id`, `section_id` 등.
 - **타임스탬프**: ISO-8601 UTC (`2024-03-01T12:34:56Z`). `last_updated_at`은 DB의 `updated_at`을 매핑한다.
-- **오류 응답**: 공통 포맷을 사용한다.
+- **오류 응답**: RFC 7807 Problem Details(`Content-Type: application/problem+json`)를 사용한다.
 
 ```json
 {
-  "error": "<code>",
-  "message": "<human readable message>",
-  "details": {"optional": "field level errors"}
+  "type": "https://resu.me/errors/email-taken",
+  "title": "Conflict",
+  "status": 409,
+  "detail": "이미 사용 중인 이메일입니다.",
+  "instance": "/api/auth/signup",
+  "code": "email_taken",
+  "fields": {
+    "email": "already_taken"
+  }
 }
 ```
 
-### 오류 코드 테이블
+> `type`은 오류 유형을 설명하는 URI이다. 별도 문서를 생성하기 전에는 `https://resu.me/errors/<slug>` 패턴을 사용하고, 구체적인 문서가 없으면 `about:blank`를 사용할 수 있다. `code`, `fields`는 서비스 확장 필드로 정의한다.
 
-| HTTP | code | 설명 |
-| --- | --- | --- |
-| 400 | `invalid_request` | 스키마 또는 파라미터 오류. `details`에 필드별 에러 포함 가능. |
-| 401 | `unauthorized` | 토큰 누락/만료/검증 실패. |
-| 403 | `forbidden` | 리소스 접근 권한 없음 (예: 다른 사용자의 리소스). |
-| 404 | `not_found` | 존재하지 않는 리소스(`resume_not_found`, `section_not_found` 등 세부 코드 사용). |
-| 409 | `conflict` | 중복 핸들, 중복 섹션 순서 등 충돌 상황. |
-| 422 | `validation_error` | 콘텐츠 검증 실패 (예: 섹션 content schema 위반). |
-| 429 | `rate_limited` | 쿼터 초과, 과도한 요청. |
-| 500 | `internal_error` | 서버 내부 오류. |
+### 오류 매핑
 
-> 세부 비즈니스 오류는 `error` 필드에 도메인 코드(`email_taken`, `quota_exceeded` 등)를 기입하고, 위 표의 HTTP 상태를 따른다.
+| HTTP | type (slug) | 기본 title | detail 예시 |
+| --- | --- | --- | --- |
+| 400 | `invalid-request` | Bad Request | 요청 스키마 오류, 필드 누락. |
+| 401 | `unauthorized` | Unauthorized | 토큰 누락/만료/검증 실패. |
+| 403 | `forbidden` | Forbidden | 리소스 접근 권한 없음 (예: 다른 사용자의 리소스). |
+| 404 | `not-found` | Not Found | 존재하지 않는 리소스(`resume`, `section` 등). |
+| 409 | `conflict` | Conflict | 중복 핸들, 섹션 순서 충돌 등. 세부 `code` 예: `email_taken`. |
+| 422 | `validation-error` | Unprocessable Entity | 섹션 content schema 위반, 필드 유효성 실패. |
+| 429 | `rate-limited` | Too Many Requests | 쿼터 초과, 호출 제한. |
+| 500 | `internal-error` | Internal Server Error | 미처리 예외, 서버 내부 오류. |
+
+> 세부 도메인 코드는 `code` 필드에 작성(`quota_exceeded`, `section_content_invalid` 등). 필드별 오류는 `fields` 객체에 `{ "field_name": "reason" }` 형식으로 전달한다.
 
 ### 페이징 / 정렬
 
@@ -67,7 +75,7 @@
 }
 ```
 
-> 실패 케이스: `409 email_taken`, `409 handle_taken`, `422 validation_error`.
+> 실패 케이스: Problem Details `status=409`, `code=email_taken|handle_taken`; `status=422`, `code=signup_payload_invalid` 등.
 
 ### POST `/api/auth/login`
 
@@ -82,7 +90,7 @@
 ```
 
 - **Response 200**: `signup`과 동일 구조.
-- **오류**: `401 unauthorized` (잘못된 자격 증명).
+- **오류**: Problem Details `status=401`, `code=invalid_credentials`.
 
 ### GET `/api/auth/me`
 
@@ -266,7 +274,7 @@
 { "ok": true }
 ```
 
-> 검증 실패 시 `422 validation_error` + 배열 크기/중복 관련 메시지 반환.
+> 검증 실패 시 Problem Details `status=422`, `code=section_order_invalid`, `fields.section_id="duplicate"` 등으로 응답한다.
 
 ---
 
@@ -292,7 +300,7 @@
 }
 ```
 
-> 쿼터 초과 시 `429 quota_exceeded`, 내보내기 실패 시 후속 `GET` 호출에서 `status: failed`와 `error_reason` 제공.
+> 쿼터 초과 시 Problem Details `status=429`, `code=quota_exceeded`; 내보내기 실패 시 후속 `GET` 호출에서 `status: failed`와 `error_reason` 제공.
 
 ### GET `/api/exports/{export_id}`
 
