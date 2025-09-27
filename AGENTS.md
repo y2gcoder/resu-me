@@ -121,3 +121,4 @@
 
 - Treat `/docs` as canonical. When behavior changes, update the relevant doc in the same PR.
 - Capture architecture decisions in `docs/adr/` (create the directory if absent) to keep rationales searchable for future agents.
+- Maintain the MVP execution plan in `docs/mvp_checklist.md`; keep checkboxes in sync with deliverables and link it from PR descriptions when milestones shift.
