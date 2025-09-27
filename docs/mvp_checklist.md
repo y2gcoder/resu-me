@@ -10,7 +10,7 @@
 
 ## 스텝 1 – 로컬 및 CI 도구 준비 (예상 2일)
 
-- [ ] Docker Compose에 프론트엔드, 백엔드, PostgreSQL, S3/R2 호환 스토리지 에뮬레이터를 추가한다.
+- [x] Docker Compose에 프론트엔드, 백엔드, PostgreSQL, S3/R2 호환 스토리지 에뮬레이터를 추가한다. (2025-09-27)
 - [ ] GitHub Actions CI가 pnpm lint/test, uv + Ruff + mypy, Pytest 커버리지, Playwright 스모크 테스트를 실행하도록 구성한다.
 - [ ] 로컬 개발을 위한 샘플 데이터/스크립트를 준비한다.
 
