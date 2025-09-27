@@ -113,9 +113,11 @@
 
 ## Commit & Pull Request Guidelines
 
-- Follow the existing conventional prefix pattern (`docs:`, `feature/`, `ci:`). Use imperative mood and include the GitHub issue or PR number in parentheses when applicable (`feature/api spec (#14)`).
+- Follow the conventional prefix pattern (`feat:`, `fix:`, `docs:`, `ci:`, `refactor:`). Use imperative mood and include the GitHub issue or PR number in parentheses when applicable (`feat/api spec (#14)`).
 - Keep commits focused; squash fixups before pushing.
 - Pull requests must describe scope, testing performed, and affected docs. Attach screenshots or curl examples for new endpoints/UI. Request reviews from domain owners (backend, frontend, docs) and link relevant doc updates.
+- Branch naming: prefer `type/short-task` (e.g., `docs/update-agents`, `feat/resume-editor`, `fix/export-pdf`). Use lowercase, hyphens for multi-word segments, and keep branch names ≤50 characters.
+- Refer to `docs/git_strategy.md` for the full Git workflow (branching, PR process, CI gates).
 
 ## Documentation & Knowledge Base
 
