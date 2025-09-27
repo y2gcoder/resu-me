@@ -48,7 +48,7 @@ AI 기능은 필수는 아니지만 요약/번역 보조를 통해 차별화한�
 4. 공개 보기
    - URL `/u/{handle}/{resumeId}`, 조건: `isPublic = true`
 5. PDF 내보내기
-   - HTML → PDF 변환 후 오브젝트 스토리지(S3/R2)에 저장
+   - HTML → (Playwright/Chromium) → PDF 변환 후 오브젝트 스토리지(S3/R2)에 저장
    - 다운로드 링크 반환
    - 월간 무료 PDF 쿼터 제한
    - 요청 시 템플릿 키를 지정할 수 있으며, 생략되면 시스템 기본 템플릿이 적용
@@ -104,7 +104,7 @@ AI 기능은 필수는 아니지만 요약/번역 보조를 통해 차별화한�
 - 보안: 개인정보(이메일, 연락처 등) 보호, 기본은 비공개
 - 국제화: locale 필드 기반 다국어 지원
 - 가용성: 서버리스 Postgres(Neon/Supabase)로 시작, 추후 RDS 승급
-- 관측성: 에러 로깅(Sentry), `/health` 엔드포인트
+- 관측성: structlog 기반 JSON 로그 + 에러 로깅(Sentry), `/health` 엔드포인트
 
 ---
 
@@ -132,7 +132,7 @@ AI 기능은 필수는 아니지만 요약/번역 보조를 통해 차별화한�
 
 ## 8. Business Rules
 
-- 무료 플랜: Resume 1개, Template 1종, PDF N회/월
+- 무료 플랜: Resume 1개, Template 1종, PDF 5회/월
 - 공개 URL은 `(handle, resumeId)` 조합으로 접근
 - Export 요청은 quota 초과 시 거절
 - AI 기능은 비용 제어를 위해 제한적 제공
@@ -141,6 +141,8 @@ AI 기능은 필수는 아니지만 요약/번역 보조를 통해 차별화한�
 
 ## 9. Risks & Open Questions
 
-- PDF 포맷 호환성 (폰트/레이아웃 깨짐 가능)
-- 서버리스 Postgres의 연결 제한 → pgbouncer 필요
-- AI 호출 비용 관리 전략 필요
+- 상세 목록은 `docs/open_questions.md`를 참고한다.
+- 핵심 리스크 요약
+  - PDF 포맷 호환성 (폰트/레이아웃 깨짐 가능)
+  - 서버리스 Postgres 연결 제한 (pgbouncer 등 풀 전략 필요)
+  - AI 호출 비용 관리 전략 필요
