@@ -9,7 +9,7 @@
 
 ### Day 1-2: 기본 이력서 편집기
 
-- [ ] Next.js 기본 프로젝트 설정 (App Router, TypeScript, Tailwind)
+- [x] Next.js 기본 프로젝트 설정 (App Router, TypeScript, Tailwind)
 - [ ] 이력서 편집 폼 UI 구현 (React Hook Form, 하드코딩된 필드)
 - [ ] 로컬 스토리지에 임시 저장 기능
 - [ ] 기본 템플릿으로 미리보기 화면 구현

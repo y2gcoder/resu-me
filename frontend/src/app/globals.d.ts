@@ -1,2 +1,2 @@
 // CSS imports type declaration
-declare module '*.css';
+declare module "*.css";
