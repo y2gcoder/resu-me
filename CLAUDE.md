@@ -213,6 +213,19 @@ See `docs/git_strategy.md` for complete workflow details.
 
 ## Common Development Tasks
 
+### Installing shadcn/ui Components
+
+```bash
+# Always use pnpm dlx for shadcn/ui components
+cd frontend
+pnpm dlx shadcn@latest add [component-name]
+
+# Examples:
+pnpm dlx shadcn@latest add button
+pnpm dlx shadcn@latest add form
+pnpm dlx shadcn@latest add input
+```
+
 ### Adding a New Section Type
 
 1. Define schema in `backend/app/schemas/sections.py`
