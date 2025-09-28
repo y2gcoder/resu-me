@@ -1,0 +1,18 @@
+# Development Dockerfile for Next.js frontend
+FROM node:20-alpine
+
+# Install pnpm via corepack
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Set working directory
+WORKDIR /workspace/frontend
+
+# Copy and make entrypoint script executable
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Expose port
+EXPOSE 3000
+
+# Entrypoint handles dependency installation and server startup
+ENTRYPOINT ["/docker-entrypoint.sh"]

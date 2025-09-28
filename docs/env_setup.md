@@ -6,12 +6,13 @@ MVP 개발을 위해 필요한 환경 변수와 시크릿 관리 방식을 정�
 
 - `backend/.env` – FastAPI 앱에서 사용하는 환경 변수 (uv/uvicorn 실행 시 로드)
 - `frontend/.env.local` – Next.js(App Router)에서 사용하는 변수
-- `docker/.env` (선택) – docker compose가 공유하는 값이 필요할 때
+- `docker/.env` (선택) – docker compose가 공유하는 값이 필요할 때 (예시: `docker/.env.example` → 루트 `.env`로 복사)
 - 공통 예시는 `backend/.env.example`, `frontend/.env.example`에 제공하며, 복사하여 사용한다.
 
 ```bash
 cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env.local
+cp docker/.env.example .env  # docker compose 포트/크레덴셜 오버라이드
 ```
 
 `.env`/`.env.local` 파일은 Git에 커밋하지 않는다. 로컬에서는 `.gitignore`를 통해 제외하고, CI/배포 환경은 해당 서비스의 Secret Store를 사용한다.

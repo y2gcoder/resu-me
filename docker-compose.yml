@@ -1,0 +1,130 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: resume-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-resume}
+      POSTGRES_USER: ${POSTGRES_USER:-resume}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-resume}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # MinIO S3-compatible Storage
+  storage:
+    image: minio/minio:latest
+    container_name: resume-storage
+    restart: unless-stopped
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-local-access-key}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-local-secret-key}
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - storage_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # MinIO Bucket Initialization
+  storage-init:
+    image: minio/mc:latest
+    container_name: resume-storage-init
+    depends_on:
+      storage:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-local-access-key}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-local-secret-key}
+      MINIO_BUCKET: ${MINIO_BUCKET:-resume-exports}
+    volumes:
+      - ./docker/scripts:/scripts:ro
+    entrypoint: ["/scripts/minio-init.sh"]
+    restart: "no"
+
+  # FastAPI Backend (Development mode)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: resume-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      storage:
+        condition: service_healthy
+    env_file:
+      - backend/.env
+    environment:
+      # Override database URL to use Docker network
+      RESUME_DATABASE_URL: ${RESUME_DATABASE_URL:-postgresql+asyncpg://resume:resume@postgres:5432/resume}
+      # Storage configuration
+      RESUME_STORAGE_ENDPOINT_URL: http://storage:9000
+      RESUME_STORAGE_ACCESS_KEY: ${MINIO_ROOT_USER:-local-access-key}
+      RESUME_STORAGE_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-local-secret-key}
+      RESUME_STORAGE_BUCKET: ${MINIO_BUCKET:-resume-exports}
+    volumes:
+      # Mount source code for hot reload
+      - ./backend:/workspace/backend
+      # Cache for uv packages
+      - backend_uv_cache:/root/.cache/uv
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    restart: unless-stopped
+
+  # Next.js Frontend (Development mode)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: resume-frontend
+    depends_on:
+      backend:
+        condition: service_started
+    env_file:
+      - frontend/.env.local
+    environment:
+      # API configuration
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000/api}
+      # Development settings
+      PORT: ${FRONTEND_PORT:-3000}
+      NEXT_TELEMETRY_DISABLED: "1"
+    volumes:
+      # Mount source code for hot reload
+      - ./frontend:/workspace/frontend
+      # Separate volume for node_modules to avoid conflicts
+      - frontend_node_modules:/workspace/frontend/node_modules
+      # Cache for pnpm store
+      - frontend_pnpm_store:/root/.local/share/pnpm/store
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  storage_data:
+    driver: local
+  backend_uv_cache:
+    driver: local
+  frontend_node_modules:
+    driver: local
+  frontend_pnpm_store:
+    driver: local
+
+networks:
+  default:
+    name: resume-network
+    driver: bridge
